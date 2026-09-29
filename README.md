@@ -94,3 +94,119 @@ CommunityTechnologyLoanFrontend/
 │
 └── js/
     └── app.js
+
+Running the Frontend
+
+No build system is currently required for the frontend.
+
+Clone the repository:
+
+git clone https://github.com/lmonserratt/CommunityTechnologyLoanFrontend.git
+
+Navigate into the project:
+
+cd CommunityTechnologyLoanFrontend
+
+Open index.html in a web browser.
+
+For local development, the project can also be served using a local HTTP server.
+
+Development Roadmap
+
+The project will be developed in multiple stages.
+
+Phase 1 — Frontend
+Responsive user interface
+Dashboard
+Device inventory
+Outreach centers
+Loan management
+User management
+Settings
+Navigation
+
+Status: Completed
+
+Phase 2 — Backend
+
+Planned technologies:
+
+Java
+Spring Boot
+Maven
+REST API
+
+Planned functionality:
+
+Device API
+User API
+Outreach center API
+Loan API
+Authentication
+Validation
+Error handling
+
+Status: Planned
+
+Phase 3 — Database
+
+Planned database:
+
+MySQL
+
+Planned entities:
+
+Users
+Devices
+Outreach Centers
+Loans
+
+Status: Planned
+
+Phase 4 — Frontend / Backend Integration
+
+The JavaScript frontend will communicate with the backend through REST API endpoints.
+
+Example:
+
+Frontend
+   │
+   ▼
+REST API
+   │
+   ▼
+Spring Boot
+   │
+   ▼
+MySQL
+
+Status: Planned
+
+Version Control
+
+The project uses Git for version control and GitHub for remote repository management.
+
+Repository:
+
+https://github.com/lmonserratt/CommunityTechnologyLoanFrontend
+
+Current main branch:
+
+main
+Author
+
+Luis Augusto Monserratt
+
+Community Technology Loan Project
+
+Project Status
+
+Frontend: Completed
+
+Backend: Planned
+
+Database: Planned
+
+API Integration: Planned
+
+Deployment: Planned
