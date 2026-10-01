@@ -1,5 +1,4 @@
 async function apiRequest(endpoint, options = {}) {
-
     const response = await fetch(
         `${API_BASE_URL}${endpoint}`,
         {
@@ -12,8 +11,17 @@ async function apiRequest(endpoint, options = {}) {
     );
 
     if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(
+            `API Error ${response.status}: ${errorText}`
+        );
     }
 
-    return await response.json();
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+    }
+
+    return await response.text();
 }
