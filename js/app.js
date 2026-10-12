@@ -1758,15 +1758,16 @@
    
                    saveDevices();
    
-                   showToast(
-                       "Device added successfully.",
-                       "success"
-                   );
-   
                    setTimeout(
-                       () =>
-                           renderInventory(),
-                       500
+                       () => {
+                           renderInventory();
+
+                           showToast(
+                               "Device added successfully. It now appears in the inventory.",
+                               "success"
+                           );
+                       },
+                       0
                    );
                }
            }
@@ -2820,7 +2821,7 @@
                );
    
            },
-           3000
+           6000
        );
    }
    
