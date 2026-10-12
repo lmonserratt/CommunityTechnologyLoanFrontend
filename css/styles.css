@@ -2000,6 +2000,45 @@ tbody tr:hover {
     transform: translateY(-8px);
 }
 
+.inventory-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-bottom: 20px;
+    padding: 14px 18px;
+
+    border: 1px solid var(--success-text);
+    border-left: 5px solid var(--success-text);
+    border-radius: var(--radius-md);
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.inventory-notice-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.inventory-notice-dismiss {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+
+    background: transparent;
+    color: inherit;
+
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.inventory-notice-dismiss:hover {
+    opacity: 0.7;
+}
+
 @media (max-width: 650px) {
     .toast-container {
         top: 12px;

@@ -14,6 +14,7 @@
        authenticated: false,
        currentPage: "Dashboard",
        currentUser: null,
+       inventoryNotice: "",
    
        devices: [
            {
@@ -878,6 +879,22 @@
                "Device Inventory",
                "Search, filter, and manage technology assets."
            )}
+
+           ${state.inventoryNotice
+               ? `
+                   <div class="inventory-notice inventory-notice-success" role="status">
+                       <span>${escapeHTML(state.inventoryNotice)}</span>
+                       <button
+                           type="button"
+                           class="inventory-notice-dismiss"
+                           data-action="dismiss-inventory-notice"
+                           aria-label="Dismiss success message"
+                       >
+                           &times;
+                       </button>
+                   </div>
+               `
+               : ""}
    
            <section class="content-card">
    
@@ -1757,18 +1774,11 @@
                    );
    
                    saveDevices();
-   
-                   setTimeout(
-                       () => {
-                           renderInventory();
 
-                           showToast(
-                               "Device added successfully. It now appears in the inventory.",
-                               "success"
-                           );
-                       },
-                       0
-                   );
+                   state.inventoryNotice =
+                       "Device added successfully. It now appears in the inventory.";
+
+                   renderInventory();
                }
            }
        );
@@ -2547,6 +2557,11 @@
    
            case "inventory":
                navigateTo("Device Inventory");
+               break;
+
+           case "dismiss-inventory-notice":
+               state.inventoryNotice = "";
+               renderInventory();
                break;
    
            case "centers":
