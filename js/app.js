@@ -14,7 +14,6 @@
        authenticated: false,
        currentPage: "Dashboard",
        currentUser: null,
-       inventoryNotice: "",
    
        devices: [
            {
@@ -880,22 +879,6 @@
                "Search, filter, and manage technology assets."
            )}
 
-           ${state.inventoryNotice
-               ? `
-                   <div class="inventory-notice inventory-notice-success" role="status">
-                       <span>${escapeHTML(state.inventoryNotice)}</span>
-                       <button
-                           type="button"
-                           class="inventory-notice-dismiss"
-                           data-action="dismiss-inventory-notice"
-                           aria-label="Dismiss success message"
-                       >
-                           &times;
-                       </button>
-                   </div>
-               `
-               : ""}
-   
            <section class="content-card">
    
                <div class="inventory-toolbar">
@@ -1452,6 +1435,11 @@
                            "Tablet",
                            device.type
                        )}
+
+                       ${selectOption(
+                           "Hotspot",
+                           device.type
+                       )}
    
                        ${selectOption(
                            "Desktop",
@@ -1651,9 +1639,9 @@
            return;
        }
    
-       form.addEventListener(
-           "submit",
-           event => {
+           form.addEventListener(
+               "submit",
+               async event => {
    
                event.preventDefault();
    
@@ -1662,6 +1650,11 @@
    
                const data =
                    Object.fromEntries(formData.entries());
+
+               ["assetTag", "serialNumber", "manufacturer", "model"]
+                   .forEach(field => {
+                       data[field] = String(data[field] || "").trim();
+                   });
    
                const duplicateAsset =
                    state.devices.some(
@@ -1729,61 +1722,149 @@
    
                } else {
    
-                   const newDevice = {
-   
-                       id:
-                           Date.now(),
-   
-                       assetTag:
-                           data.assetTag,
-   
-                       serialNumber:
-                           data.serialNumber,
-   
-                       type:
-                           data.type,
-   
-                       manufacturer:
-                           data.manufacturer,
-   
-                       model:
-                           data.model,
-   
-                       status:
-                           data.status,
-   
-                       center:
-                           data.center,
-   
-                       assignedTo:
-                           data.assignedTo || "",
-   
-                       purchaseDate:
-                           data.purchaseDate || "",
-   
-                       vendor:
-                           data.vendor || "",
-   
-                       warranty:
-                           data.warranty || ""
-   
+                   const submitButton =
+                       form.querySelector('button[type="submit"]');
+
+                   const originalButtonText =
+                       submitButton ? submitButton.textContent : "Save Device";
+
+                   if (submitButton) {
+                       submitButton.disabled = true;
+                       submitButton.textContent = "Saving...";
+                   }
+
+                   const typeToApi = {
+                       Laptop: "LAPTOP",
+                       Tablet: "TABLET",
+                       Hotspot: "HOTSPOT"
                    };
+
+                   const statusToApi = {
+                       Available: "AVAILABLE",
+                       Assigned: "CHECKED_OUT",
+                       Maintenance: "MAINTENANCE"
+                   };
+
+                   const apiDeviceType = typeToApi[data.type];
+                   const apiStatus = statusToApi[data.status];
+                   const isApiCompatible = Boolean(apiDeviceType && apiStatus);
+
+                   try {
+                       let createdRecord = null;
+
+                       if (isApiCompatible) {
+                           if (
+                               !window.CTLApi ||
+                               !window.CTLApi.devices ||
+                               typeof window.CTLApi.devices.create !== "function"
+                           ) {
+                               throw new Error("The inventory API client is unavailable.");
+                           }
+
+                           if (
+                               !window.CTLApi.centers ||
+                               typeof window.CTLApi.centers.list !== "function"
+                           ) {
+                               throw new Error("The outreach center API is unavailable.");
+                           }
+
+                           const centersResponse =
+                               await window.CTLApi.centers.list();
+
+                           const apiCenters =
+                               Array.isArray(centersResponse?.data)
+                                   ? centersResponse.data
+                                   : Array.isArray(centersResponse)
+                                       ? centersResponse
+                                       : [];
+
+                           const normalizeCenterName = name =>
+                               String(name || "")
+                                   .toLowerCase()
+                                   .replace(/neighborhood center|park/g, "")
+                                   .replace(/[^a-z0-9]+/g, " ")
+                                   .trim();
+
+                           const selectedCenterName =
+                               normalizeCenterName(data.center);
+
+                           const apiCenter =
+                               apiCenters.find(center =>
+                                   normalizeCenterName(
+                                       center.centerName || center.name
+                                   ) === selectedCenterName
+                               );
+
+                           const centerId = Number(apiCenter?.id);
+
+                           if (!Number.isInteger(centerId) || centerId < 1) {
+                               throw new Error(
+                                   `Could not match “${data.center}” to an outreach center in the server.`
+                               );
+                           }
+
+                           const apiResponse =
+                               await window.CTLApi.devices.create({
+                                   assetTag: data.assetTag.trim(),
+                                   serialNumber: data.serialNumber.trim(),
+                                   deviceType: apiDeviceType,
+                                   manufacturer: data.manufacturer.trim(),
+                                   model: data.model.trim(),
+                                   status: apiStatus,
+                                   centerId
+                               });
+
+                           createdRecord =
+                               apiResponse?.data?.device ||
+                               apiResponse?.data ||
+                               apiResponse?.device ||
+                               apiResponse;
+                       }
+
+                       const newDevice = {
+                           id: createdRecord?.id ?? Date.now(),
+                           assetTag: createdRecord?.assetTag || data.assetTag,
+                           serialNumber: createdRecord?.serialNumber || data.serialNumber,
+                           type: data.type,
+                           manufacturer: data.manufacturer,
+                           model: data.model,
+                           status: data.status,
+                           center: data.center,
+                           assignedTo: data.assignedTo || "",
+                           purchaseDate: data.purchaseDate || "",
+                           vendor: data.vendor || "",
+                           warranty: data.warranty || ""
+                       };
+
+                       state.devices.push(newDevice);
    
-                   state.devices.push(
-                       newDevice
-                   );
-   
-                   saveDevices();
+                       saveDevices();
 
-                   state.inventoryNotice =
-                       "Device added successfully. It now appears in the inventory.";
+                       renderInventory();
 
-                   renderInventory();
+                       window.scrollTo({
+                           top: 0,
+                           behavior: "instant"
+                       });
 
-                   window.scrollTo({
-                       top: 0,
-                       behavior: "instant"
-                   });
+                       showToast(
+                           isApiCompatible
+                               ? "Device added successfully. It now appears in the inventory."
+                               : "Device saved in this browser only. The API does not support this device type or status yet.",
+                           isApiCompatible ? "success" : "info"
+                       );
+                   } catch (error) {
+                       console.error("Unable to save device to the API.", error);
+                       showToast(
+                           `Device was not saved to the server. ${error.message}`,
+                           "error"
+                       );
+                   } finally {
+                       if (submitButton && submitButton.isConnected) {
+                           submitButton.disabled = false;
+                           submitButton.textContent = originalButtonText;
+                       }
+                   }
                }
            }
        );
@@ -2564,11 +2645,6 @@
                navigateTo("Device Inventory");
                break;
 
-           case "dismiss-inventory-notice":
-               state.inventoryNotice = "";
-               renderInventory();
-               break;
-   
            case "centers":
                navigateTo("Outreach Centers");
                break;

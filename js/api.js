@@ -49,6 +49,7 @@
 
         devices: {
             list: `${API_PREFIX}/inventory`,
+            create: `${API_PREFIX}/inventory`,
             get: (id) => `${API_PREFIX}/inventory/${id}`,
             update: (id) => `${API_PREFIX}/inventory/${id}`,
             history: (id) => `${API_PREFIX}/inventory/${id}/history`,
@@ -703,6 +704,17 @@
     // ============================================================
 
     const deviceApi = {
+
+        /**
+         * Create a device in the inventory.
+         */
+        create: async function (data) {
+
+            return apiPost(
+                API_ROUTES.devices.create,
+                data
+            );
+        },
 
         /**
          * Get all devices.
