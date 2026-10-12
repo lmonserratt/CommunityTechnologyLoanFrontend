@@ -1779,6 +1779,11 @@
                        "Device added successfully. It now appears in the inventory.";
 
                    renderInventory();
+
+                   window.scrollTo({
+                       top: 0,
+                       behavior: "instant"
+                   });
                }
            }
        );
