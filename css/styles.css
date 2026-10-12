@@ -1940,3 +1940,70 @@ tbody tr:hover {
         animation-iteration-count: 1 !important;
     }
 }
+
+
+/* =========================================================
+   37. TOAST NOTIFICATIONS
+   ========================================================= */
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    width: min(380px, calc(100vw - 40px));
+
+    pointer-events: none;
+}
+
+.toast {
+    padding: 15px 18px;
+
+    background: var(--white);
+    color: var(--gray-800);
+
+    border: 1px solid var(--gray-200);
+    border-left: 5px solid var(--blue-600);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-lg);
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border-left-color: var(--success-text);
+}
+
+.toast-error {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-left-color: var(--danger-text);
+}
+
+.toast-hide {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+@media (max-width: 650px) {
+    .toast-container {
+        top: 12px;
+        right: 12px;
+        width: calc(100vw - 24px);
+    }
+}

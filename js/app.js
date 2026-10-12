@@ -2772,6 +2772,16 @@
    
            container.className =
                "toast-container";
+
+           container.setAttribute(
+               "aria-live",
+               "polite"
+           );
+
+           container.setAttribute(
+               "aria-atomic",
+               "true"
+           );
    
            document.body.appendChild(
                container
@@ -2783,6 +2793,11 @@
    
        toast.className =
            `toast toast-${type}`;
+
+       toast.setAttribute(
+           "role",
+           "status"
+       );
    
        toast.textContent =
            message;
